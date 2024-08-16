@@ -1,0 +1,16 @@
+[table]
+key_with_decorator = "value"
+key_without_decorator ="value"
+number = 2
+inline_table = { inline_key = "inline_value", array_in_inline_table = [] }
+array = [1, 2, 3, [4, 5, 6, { name = "inline_table_in_array", another_array = [8, 9]}]]
+
+[[table.array_of_tables]]
+key = "value"
+key2 = "value2"
+array = [1, 2, 3]
+
+[[table.array_of_tables]]
+key = "value"
+key2 = "value2"
+array = [1, 2, 3]
