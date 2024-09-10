@@ -12,7 +12,7 @@ Installation
 
 ### Using Cargo
 
-```bash
+```
 cargo install tomli
 ```
 
@@ -32,23 +32,18 @@ The following expressions are currently supported:
 
 ### Query TOML files
 
-Examples:
+**Examples**:
 
 Get the value of the `name` key from the `package` table:
 
 ```
-$ tomli query -f Cargo.toml package.name
-
-"tomli"
+tomli query -f Cargo.toml package.name
 ```
 
 Get the first element of the array called `bin`:
 
 ```
-$ tomli query -f Cargo.toml bin[0]
-
-name = "tomli"
-path = "src/main.rs"
+tomli query -f Cargo.toml bin[0]
 ```
 
 ### Edit TOML files
@@ -63,80 +58,34 @@ path = "src/main.rs"
 The value type can be specified with the `--type` argument.
 If not type is specified, then `str` is used.
 
-Examples:
+**Examples**:
 
 Add a new key to the `package` table called `website`:
 
 ```
-$ tomli set -f Cargo.toml package.website https://example.com
-
-[package]
-name = "tomli"
-version = "0.1.0"
-description = "A simple CLI for quering and editing TOML files"
-authors = ["blinxen <h-k-81@hotmail.com>"]
-repository = "https://github.com/blinxen/tomli"
-readme = "README.md"
-license = "MIT"
-
-edition = "2021"
-website = "https://example.com"
+tomli set -f Cargo.toml package.website https://example.com
 ```
 
 Set the `name` of the first element in the `bin` array to `tumli`:
 
 ```
-$ tomli set -f Cargo.toml bin[0].name tumli
-
-[[bin]]
-name = "tumli"
-path = "src/main.rs"
+tomli set -f Cargo.toml bin[0].name tumli
 ```
 
 Add a new table called `website` to the first element of the `bin` array:
 
 ```
-$ tomli set -f Cargo.toml bin[0].website.url https://example.com
-
-[[bin]]
-name = "tomli"
-path = "src/main.rs"
-
-[bin.website]
-url = "https://example.com"
+tomli set -f Cargo.toml bin[0].website.url https://example.com
 ```
 
 Delete `name` in the table `package`:
 
 ```
-$ tomli set -f Cargo.toml package.name
-
-[package]
-version = "0.1.0"
-description = "A simple CLI for quering and editing TOML files"
-authors = ["blinxen <h-k-81@hotmail.com>"]
-repository = "https://github.com/blinxen/tomli"
-readme = "README.md"
-license = "MIT"
-
-edition = "2021"
-website = "https://example.com"
+tomli delete -f Cargo.toml package.name
 ```
 
 Delete the first element in the array authors:
 
 ```
-$ tomli set -f Cargo.toml package.authors[0]
-
-
-[package]
-version = "0.1.0"
-description = "A simple CLI for quering and editing TOML files"
-authors = []
-repository = "https://github.com/blinxen/tomli"
-readme = "README.md"
-license = "MIT"
-
-edition = "2021"
-website = "https://example.com"
+tomli delete -f Cargo.toml package.authors[0]
 ```
