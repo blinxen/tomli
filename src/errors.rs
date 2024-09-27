@@ -1,4 +1,7 @@
-use std::{num::{ParseFloatError, ParseIntError}, str::ParseBoolError};
+use std::{
+    num::{ParseFloatError, ParseIntError},
+    str::ParseBoolError,
+};
 
 use thiserror::Error;
 

@@ -5,7 +5,12 @@ use toml_edit::{DocumentMut, InlineTable, Item, Table, Value};
 use crate::errors::TomliError;
 use crate::{parser, ValueType};
 
-pub fn exec(mut document: DocumentMut, query: &str, value: &str, value_type: ValueType) -> Result<(), TomliError> {
+pub fn exec(
+    mut document: DocumentMut,
+    query: &str,
+    value: &str,
+    value_type: ValueType,
+) -> Result<(), TomliError> {
     // Editing the whole document makes no sense
     // If the user wants to do this, then he should use echo (or a similiar tool) to edit the file manually
     if query == "." || query.is_empty() {

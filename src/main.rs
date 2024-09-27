@@ -39,7 +39,7 @@ enum Commands {
         value: String,
         /// Value type that should be used
         #[arg(value_enum, short = 't', long = "type", default_value_t = ValueType::Str)]
-        value_type: ValueType
+        value_type: ValueType,
     },
     /// Delete an item in a TOML document
     Delete {
@@ -53,7 +53,7 @@ enum ValueType {
     Str,
     Int,
     Float,
-    Bool
+    Bool,
 }
 
 // Read the input document from a file
@@ -77,7 +77,14 @@ fn main() {
 
     let (query, result) = match cli.command {
         Commands::Query { query } => (query.clone(), query::exec(document, &query)),
-        Commands::Set { query, value, value_type } => (query.clone(), set::exec(document, &query, &value, value_type)),
+        Commands::Set {
+            query,
+            value,
+            value_type,
+        } => (
+            query.clone(),
+            set::exec(document, &query, &value, value_type),
+        ),
         Commands::Delete { query } => (query.clone(), delete::exec(document, &query)),
     };
 
