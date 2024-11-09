@@ -89,3 +89,9 @@ Delete the first element in the array authors:
 ```
 tomli delete -f Cargo.toml package.authors[0]
 ```
+
+License
+-------
+
+The source code is primarily distributed under the terms of the MIT License.
+See LICENSE for details.
