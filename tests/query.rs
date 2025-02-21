@@ -38,6 +38,9 @@ key = "value"
 key2 = "value2"
 array = [1, 2, 3]
 
+[second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
+key = "value"
+
 "#
 );
 
@@ -79,6 +82,12 @@ query_test!(should_print_element_in_array, "table.array[1]", " 2\n");
 query_test!(
     should_print_value_from_table_in_array_of_tables,
     "table.array_of_tables[0].key",
+    " \"value\"\n"
+);
+// Test if quotes and brackets can be used as a table header
+query_test!(
+    should_print_table_with_weird_name,
+    "second_table.'brackets(more_brackets(quotes = \"a\", more_quotes = \"b\"))'.key",
     " \"value\"\n"
 );
 

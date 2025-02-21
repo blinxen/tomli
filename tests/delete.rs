@@ -32,6 +32,9 @@ key = "value"
 key2 = "value2"
 array = [1, 2, 3]
 
+[second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
+key = "value"
+
 "#
 );
 
@@ -54,6 +57,9 @@ array = [1, 2, 3]
 key = "value"
 key2 = "value2"
 array = [1, 2, 3]
+
+[second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
+key = "value"
 
 "#
 );
