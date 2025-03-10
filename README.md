@@ -16,6 +16,12 @@ Installation
 cargo install tomli
 ```
 
+### Release tarball
+
+```
+wget https://github.com/blinxen/tomli/releases/download/$VERSION/tomli.tar.gz
+```
+
 
 Usage
 -----

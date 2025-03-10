@@ -29,12 +29,12 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build release
-        run: cargo build --release
+        run: |
+          cargo build --release
+          mv target/release/tomli .
+          tar -czf tomli.tar.gz tomli CHANGELOG.md LICENSE
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            target/release/tomli
-            CHANGELOG.md
-            LICENSE
+          files: tomli.tar.gz
