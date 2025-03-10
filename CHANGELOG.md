@@ -1,5 +1,9 @@
 # Changelog for `tomli`
 
+## 0.2.1
+
+* Update dependencies
+
 ## 0.2.0
 
 * Update dependencies
