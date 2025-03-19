@@ -1,5 +1,9 @@
 # Changelog for `tomli`
 
+## 0.2.2
+
+* Add `--if-exists` option to delete command
+
 ## 0.2.1
 
 * Update dependencies
