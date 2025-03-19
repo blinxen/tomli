@@ -79,14 +79,14 @@ fn main() {
     });
 
     let (query, result) = match cli.command {
-        Commands::Query { query } => (query.clone(), query::exec(document, &query)),
+        Commands::Query { query } => (query.clone(), query::exec(&document, &query)),
         Commands::Set {
             query,
             value,
             value_type,
         } => (
             query.clone(),
-            set::exec(document, &query, &value, value_type),
+            set::exec(&mut document, &query, &value, value_type),
         ),
         Commands::Delete { if_exists, query } => {
             let mut result = delete::exec(&mut document, &query);
