@@ -6,7 +6,7 @@ use crate::errors::TomliError;
 use crate::{parser, ValueType};
 
 pub fn exec(
-    mut document: DocumentMut,
+    document: &mut DocumentMut,
     query: &str,
     value: &str,
     value_type: ValueType,

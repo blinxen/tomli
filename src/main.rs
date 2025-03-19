@@ -43,6 +43,9 @@ enum Commands {
     },
     /// Delete an item in a TOML document
     Delete {
+        #[arg(short = 'e', long)]
+        if_exists: bool,
+
         /// Query expression, that specifies which element you want to set / append
         query: String,
     },
@@ -70,22 +73,31 @@ fn read_input(filepath: &Option<PathBuf>) -> Result<DocumentMut, TomliError> {
 
 fn main() {
     let cli = Cli::parse();
-    let document = read_input(&cli.filepath).unwrap_or_else(|err| {
+    let mut document = read_input(&cli.filepath).unwrap_or_else(|err| {
         eprintln!("{}", err);
         std::process::exit(1);
     });
 
     let (query, result) = match cli.command {
-        Commands::Query { query } => (query.clone(), query::exec(document, &query)),
+        Commands::Query { query } => (query.clone(), query::exec(&document, &query)),
         Commands::Set {
             query,
             value,
             value_type,
         } => (
             query.clone(),
-            set::exec(document, &query, &value, value_type),
+            set::exec(&mut document, &query, &value, value_type),
         ),
-        Commands::Delete { query } => (query.clone(), delete::exec(document, &query)),
+        Commands::Delete { if_exists, query } => {
+            let mut result = delete::exec(&mut document, &query);
+            if if_exists {
+                result = Ok(())
+            }
+            if result.is_ok() {
+                println!("{document}");
+            }
+            (query.clone(), result)
+        }
     };
 
     result.unwrap_or_else(|err| {

@@ -26,7 +26,10 @@ fn tokenize(chars: Chars) -> Vec<Token> {
             '.' => Token::Dot,
             '[' => Token::OpenBracket,
             ']' => Token::CloseBracket,
-            c if c.is_alphabetic() || ['_', '-', '"', '\'', '(', ')', '=', ','].contains(&c) || c.is_whitespace() => {
+            c if c.is_alphabetic()
+                || ['_', '-', '"', '\'', '(', ')', '=', ','].contains(&c)
+                || c.is_whitespace() =>
+            {
                 Token::Char(c)
             }
             n if n.is_numeric() => Token::Number(n),
@@ -240,7 +243,7 @@ mod tests {
             "table.\"key\"'",
             "table(",
             "table)",
-            "table.('key')"
+            "table.('key')",
         ];
 
         for query in queries {
