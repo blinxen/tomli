@@ -43,6 +43,7 @@ enum Commands {
     },
     /// Delete an item in a TOML document
     Delete {
+        /// If this flag is set, the process will exit with 0 even if the key does not exist
         #[arg(short = 'e', long)]
         if_exists: bool,
 
