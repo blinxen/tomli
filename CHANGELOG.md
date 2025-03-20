@@ -1,5 +1,9 @@
 # Changelog for `tomli`
 
+## 0.2.3
+
+* Add an entry in README.md about `--if-exists` option
+
 ## 0.2.2
 
 * Add `--if-exists` option to delete command

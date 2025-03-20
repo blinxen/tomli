@@ -90,6 +90,12 @@ Delete `name` in the table `package`:
 tomli delete -f Cargo.toml package.name
 ```
 
+Delete `description` in the table `package` if it exists:
+
+```
+tomli delete --if-exists -f Cargo.toml package.description
+```
+
 Delete the first element in the array authors:
 
 ```
