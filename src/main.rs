@@ -46,7 +46,6 @@ enum Commands {
         /// If this flag is set, the process will exit with 0 even if the key does not exist
         #[arg(short = 'e', long)]
         if_exists: bool,
-
         /// Query expression, that specifies which element you want to set / append
         query: String,
     },
@@ -92,16 +91,13 @@ fn main() {
         Commands::Delete { if_exists, query } => {
             let mut result = delete::exec(&mut document, &query);
             if if_exists {
-                result = Ok(())
-            }
-            if result.is_ok() {
-                println!("{document}");
+                result = Ok(document.to_string())
             }
             (query.clone(), result)
         }
     };
 
-    result.unwrap_or_else(|err| {
+    if let Err(err) = result {
         match err {
             TomliError::QuerySyntaxError(position) => {
                 eprintln!(
@@ -113,7 +109,8 @@ fn main() {
             }
             _ => eprintln!("{}", err),
         }
-
         std::process::exit(1);
-    })
+    } else {
+        println!("{}", result.unwrap());
+    }
 }

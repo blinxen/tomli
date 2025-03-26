@@ -4,7 +4,7 @@ use toml_edit::{DocumentMut, Item, Value};
 use crate::errors::TomliError;
 use crate::parser;
 
-pub fn exec(document: &mut DocumentMut, query: &str) -> Result<(), TomliError> {
+pub fn exec(document: &mut DocumentMut, query: &str) -> Result<String, TomliError> {
     // Deleting the whole document makes no sense with this tool
     if query == "." || query.is_empty() {
         return Err(TomliError::InvalidInputQuery(
@@ -76,5 +76,5 @@ pub fn exec(document: &mut DocumentMut, query: &str) -> Result<(), TomliError> {
         None => {}
     }
 
-    Ok(())
+    Ok(document.to_string())
 }

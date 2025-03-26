@@ -10,7 +10,7 @@ pub fn exec(
     query: &str,
     value: &str,
     value_type: ValueType,
-) -> Result<(), TomliError> {
+) -> Result<String, TomliError> {
     // Editing the whole document makes no sense
     // If the user wants to do this, then he should use echo (or a similiar tool) to edit the file manually
     if query == "." || query.is_empty() {
@@ -104,6 +104,5 @@ pub fn exec(
         ValueType::Bool => *item = toml_edit::value::<bool>(bool::from_str(value)?),
     };
 
-    println!("{document}");
-    Ok(())
+    Ok(document.to_string())
 }

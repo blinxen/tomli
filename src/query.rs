@@ -4,11 +4,10 @@ use toml_edit::DocumentMut;
 use crate::errors::TomliError;
 use crate::parser;
 
-pub fn exec(document: &DocumentMut, query: &str) -> Result<(), TomliError> {
+pub fn exec(document: &DocumentMut, query: &str) -> Result<String, TomliError> {
     // An empty query or a dot are evaluated as the whole document
     if query == "." || query.is_empty() {
-        println!("{document}");
-        return Ok(());
+        return Ok(document.to_string());
     }
 
     let mut item = document.as_item();
@@ -37,6 +36,5 @@ pub fn exec(document: &DocumentMut, query: &str) -> Result<(), TomliError> {
         };
     }
 
-    println!("{}", item);
-    Ok(())
+    Ok(item.to_string())
 }
