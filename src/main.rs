@@ -4,8 +4,8 @@ mod parser;
 mod query;
 mod set;
 
-use std::path::PathBuf;
 use std::str;
+use std::{fs, path::PathBuf};
 
 use clap::{Parser, Subcommand};
 use errors::TomliError;
@@ -20,6 +20,9 @@ struct Cli {
     /// Path to a TOML file
     #[arg(short, long, global = true)]
     filepath: Option<PathBuf>,
+    /// Edit file in-place when applicable
+    #[arg(short = 'i', long, global = true)]
+    in_place: bool,
     #[command(subcommand)]
     command: Commands,
 }
@@ -78,8 +81,8 @@ fn main() {
         std::process::exit(1);
     });
 
-    let (query, result) = match cli.command {
-        Commands::Query { query } => (query.clone(), query::exec(&document, &query)),
+    let (query, result, can_write) = match cli.command {
+        Commands::Query { query } => (query.clone(), query::exec(&document, &query), false),
         Commands::Set {
             query,
             value,
@@ -87,13 +90,14 @@ fn main() {
         } => (
             query.clone(),
             set::exec(&mut document, &query, &value, value_type),
+            true,
         ),
         Commands::Delete { if_exists, query } => {
             let mut result = delete::exec(&mut document, &query);
             if if_exists {
                 result = Ok(document.to_string())
             }
-            (query.clone(), result)
+            (query.clone(), result, true)
         }
     };
 
@@ -110,6 +114,9 @@ fn main() {
             _ => eprintln!("{}", err),
         }
         std::process::exit(1);
+    } else if can_write && cli.in_place && cli.filepath.is_some() {
+        fs::write(cli.filepath.unwrap(), result.unwrap().as_bytes())
+            .expect("An error occured when trying to save the file");
     } else {
         println!("{}", result.unwrap());
     }
