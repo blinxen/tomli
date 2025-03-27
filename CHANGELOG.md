@@ -1,5 +1,9 @@
 # Changelog for `tomli`
 
+## 0.2.4
+
+* Add `--in-place` flag to allow making modifications in place
+
 ## 0.2.3
 
 * Document `--if-exists` flag
@@ -7,7 +11,7 @@
 
 ## 0.2.2
 
-* Add `--if-exists` option to delete command
+* Add `--if-exists` flag to delete command
 
 ## 0.2.1
 

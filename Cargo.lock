@@ -302,7 +302,7 @@ dependencies = [
 
 [[package]]
 name = "tomli"
-version = "0.2.3"
+version = "0.3.0"
 dependencies = [
  "clap",
  "tempfile",

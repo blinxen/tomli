@@ -1,6 +1,6 @@
 [package]
 name = "tomli"
-version = "0.2.3"
+version = "0.3.0"
 description = "A simple CLI for quering and editing TOML files"
 authors = ["blinxen <h-k-81@hotmail.com>"]
 repository = "https://github.com/blinxen/tomli"
