@@ -110,9 +110,13 @@ fn parse_tokens(tokens: Vec<Token>) -> Result<Vec<Item>, TomliError> {
                 {
                     return Err(TomliError::QuerySyntaxError(counter));
                 }
-                path.push(Item::ArrayIndex(index.parse().unwrap()));
-                brackets_open = false;
-                index.clear();
+                if quote.is_none() {
+                    path.push(Item::ArrayIndex(index.parse().unwrap()));
+                    brackets_open = false;
+                    index.clear();
+                } else {
+                    key.push(']');
+                }
             }
             Token::Dot => {
                 // Sanity checks before doing anything
@@ -126,9 +130,11 @@ fn parse_tokens(tokens: Vec<Token>) -> Result<Vec<Item>, TomliError> {
                 {
                     return Err(TomliError::QuerySyntaxError(counter));
                 }
-                if !key.is_empty() {
+                if !key.is_empty() && quote.is_none() {
                     path.push(Item::Key(key.clone()));
                     key.clear();
+                } else {
+                    key.push('.');
                 }
             }
             Token::OpenBracket => {
@@ -142,10 +148,10 @@ fn parse_tokens(tokens: Vec<Token>) -> Result<Vec<Item>, TomliError> {
                 {
                     return Err(TomliError::QuerySyntaxError(counter));
                 }
-                // If the key is empty, don't push it to the path since this means
-                // that the last token was a closing bracket
-                if !key.is_empty() {
+                if !key.is_empty() && quote.is_none() {
                     path.push(Item::Key(key.clone()));
+                } else {
+                    key.push('[');
                 }
                 key.clear();
                 brackets_open = true;
