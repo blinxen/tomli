@@ -130,11 +130,11 @@ fn parse_tokens(tokens: Vec<Token>) -> Result<Vec<Item>, TomliError> {
                 {
                     return Err(TomliError::QuerySyntaxError(counter));
                 }
-                if !key.is_empty() && quote.is_none() {
+                if quote.is_some() {
+                    key.push('.');
+                } else if !key.is_empty() {
                     path.push(Item::Key(key.clone()));
                     key.clear();
-                } else {
-                    key.push('.');
                 }
             }
             Token::OpenBracket => {
