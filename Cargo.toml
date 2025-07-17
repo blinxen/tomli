@@ -23,8 +23,8 @@ path = "src/main.rs"
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
-thiserror = "1"
-toml_edit = "0.22"
+thiserror = "2"
+toml_edit = "0.23"
 
 [dev-dependencies]
 tempfile = "3"

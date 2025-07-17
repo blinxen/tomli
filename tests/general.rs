@@ -22,12 +22,12 @@ input_test!(should_print_an_empty_document, "empty.toml", "\n");
 input_test!(
     should_print_error_message_on_invalid_toml,
     "invalid.toml",
-    "The provided TOML document has an invalid syntax:\n\nTOML parse error at line 2, column 5\n  |\n2 | name\n  |     ^\nexpected `.`, `=`\n\n"
+    "The provided TOML document has an invalid syntax:\n\nTOML parse error at line 2, column 5\n  |\n2 | name\n  |     ^\nkey with no value, expected `=`\n\n"
 );
 input_test!(
     should_print_error_message_on_json_file,
     "json.toml",
-    "The provided TOML document has an invalid syntax:\n\nTOML parse error at line 1, column 1\n  |\n1 | {\n  | ^\ninvalid key\n\n"
+    "The provided TOML document has an invalid syntax:\n\nTOML parse error at line 1, column 1\n  |\n1 | {\n  | ^\ninvalid key-value pair, expected key\n\n"
 );
 
 #[test]
