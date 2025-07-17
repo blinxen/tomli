@@ -1,6 +1,13 @@
 # Changelog for `tomli`
 
-## 0.2.4
+## 0.3.1
+
+* Fix [issue](https://github.com/blinxen/tomli/issues/5)
+  where quotes could not be used in a table name
+* Update dependencies
+* Fix previous changelog entry
+
+## 0.3.0
 
 * Add `--in-place` flag to allow making modifications in place
 
