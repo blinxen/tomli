@@ -3,7 +3,7 @@ use std::str::FromStr;
 use toml_edit::{DocumentMut, InlineTable, Item, Table, Value};
 
 use crate::errors::TomliError;
-use crate::{parser, ValueType};
+use crate::{ValueType, parser};
 
 pub fn exec(
     document: &mut DocumentMut,
@@ -33,7 +33,7 @@ pub fn exec(
                     // Either retrieve the item from a table or create a new one
                     Item::Table(t) => t.entry(key).or_insert(Item::None),
                     Item::ArrayOfTables(_) | Item::Value(Value::Array(_)) => {
-                        return Err(TomliError::InvalidKeyAccess(key.to_string()))
+                        return Err(TomliError::InvalidKeyAccess(key.to_string()));
                     }
                     // Either retrieve the item from a table or create a new one
                     // Also mark that we are now in an inline table
@@ -42,7 +42,8 @@ pub fn exec(
                         t.entry(key)
                             .or_insert(Value::InlineTable(toml_edit::InlineTable::new()));
 
-                        item.get_mut(key).unwrap()
+                        item.get_mut(key)
+                            .expect("BUG: Could not find key that was just inserted")
                     }
                     // Create a new table / inline table and add the new item to it
                     // The way this works is the follwing:
@@ -55,7 +56,7 @@ pub fn exec(
                     _ => {
                         *item = if inline_table {
                             let mut table = InlineTable::new();
-                            table.insert(key, Value::from_str("").unwrap());
+                            table.insert(key, Value::from(""));
 
                             Item::Value(Value::InlineTable(table))
                         } else {
@@ -65,8 +66,8 @@ pub fn exec(
                             Item::Table(table)
                         };
 
-                        // We can unwrap since we just added this key
-                        item.get_mut(key).unwrap()
+                        item.get_mut(key)
+                            .expect("BUG: Could not find key that was just inserted")
                     }
                 };
             }
@@ -80,7 +81,8 @@ pub fn exec(
                             return Err(TomliError::IndexOutOfBounds(*index));
                         }
 
-                        item.get_mut(index).unwrap()
+                        item.get_mut(index)
+                            .expect("BUG: Expected item at index but could not find it")
                     }
                     // We only accept arrays here
                     // All other types are an invalid access

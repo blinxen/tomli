@@ -111,7 +111,11 @@ fn parse_tokens(tokens: Vec<Token>) -> Result<Vec<Item>, TomliError> {
                     return Err(TomliError::QuerySyntaxError(counter));
                 }
                 if quote.is_none() {
-                    path.push(Item::ArrayIndex(index.parse().unwrap()));
+                    path.push(Item::ArrayIndex(
+                        index
+                            .parse()
+                            .expect("BUG: Expected a number but got something else"),
+                    ));
                     brackets_open = false;
                     index.clear();
                 } else {

@@ -101,23 +101,29 @@ fn main() {
         }
     };
 
-    if let Err(err) = result {
-        match err {
-            TomliError::QuerySyntaxError(position) => {
-                eprintln!(
+    match result {
+        Err(error) => {
+            match error {
+                TomliError::QuerySyntaxError(position) => eprintln!(
                     "{}:\n\n{}\n{}--^-",
-                    err,
+                    error,
                     query,
                     " ".repeat(position.saturating_sub(2)),
-                );
-            }
-            _ => eprintln!("{}", err),
+                ),
+                _ => eprintln!("{}", error),
+            };
+            std::process::exit(1);
         }
-        std::process::exit(1);
-    } else if can_write && cli.in_place && cli.filepath.is_some() {
-        fs::write(cli.filepath.unwrap(), result.unwrap().as_bytes())
-            .expect("An error occured when trying to save the file");
-    } else {
-        println!("{}", result.unwrap());
-    }
+        Ok(result) => {
+            if can_write
+                && cli.in_place
+                && let Some(filepath) = cli.filepath
+            {
+                fs::write(filepath, result.as_bytes())
+                    .expect("An error occured when trying to save the file");
+            } else {
+                println!("{result}");
+            }
+        }
+    };
 }
