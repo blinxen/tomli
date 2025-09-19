@@ -60,6 +60,7 @@ enum ValueType {
     Int,
     Float,
     Bool,
+    Datetime,
 }
 
 // Read the input document from a file

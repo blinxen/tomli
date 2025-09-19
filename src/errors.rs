@@ -2,6 +2,7 @@ use std::{
     num::{ParseFloatError, ParseIntError},
     str::ParseBoolError,
 };
+use toml_edit::DatetimeParseError;
 
 use thiserror::Error;
 
@@ -34,4 +35,6 @@ pub enum TomliError {
     ValueToFloatError(#[from] ParseFloatError),
     #[error("Could not convert the given value to a boolean")]
     ValueToBoolError(#[from] ParseBoolError),
+    #[error("Could not convert the given value to a datetime")]
+    ValueToDatetimeError(#[from] DatetimeParseError),
 }

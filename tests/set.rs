@@ -294,6 +294,35 @@ key = "value"
 "#
 );
 
+// Test if setting the value type to a datetime works
+set_test!(
+    should_set_value_in_array_and_convert_it_to_datetime,
+    "table.array[1]",
+    "2025-12-12",
+    "datetime",
+    r#"[table]
+key_with_decorator = "value"
+key_without_decorator ="value"
+number = 2
+inline_table = { inline_key = "inline_value", array_in_inline_table = [] }
+array = [1, 2025-12-12, 3, [4, 5, 6, { name = "inline_table_in_array", another_array = [8, 9]}]]
+
+[[table.array_of_tables]]
+key = "value"
+key2 = "value2"
+array = [1, 2, 3]
+
+[[table.array_of_tables]]
+key = "value"
+key2 = "value2"
+array = [1, 2, 3]
+
+[second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
+key = "value"
+
+"#
+);
+
 /*
 * Tests that should always fail
 */
@@ -351,4 +380,13 @@ set_test!(
     "fff",
     "bool",
     "Could not convert the given value to a boolean\n"
+);
+
+// Test if setting the value type to a datetime fails
+set_test!(
+    should_fail_to_convert_value_to_datetime,
+    "table.array[1]",
+    "fff",
+    "datetime",
+    "Could not convert the given value to a datetime\n"
 );

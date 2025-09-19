@@ -1,6 +1,6 @@
 use std::str;
 use std::str::FromStr;
-use toml_edit::{DocumentMut, InlineTable, Item, Table, Value};
+use toml_edit::{Datetime, DocumentMut, InlineTable, Item, Table, Value};
 
 use crate::errors::TomliError;
 use crate::{ValueType, parser};
@@ -104,6 +104,7 @@ pub fn exec(
         ValueType::Int => *item = toml_edit::value::<i64>(i64::from_str(value)?),
         ValueType::Float => *item = toml_edit::value::<f64>(f64::from_str(value)?),
         ValueType::Bool => *item = toml_edit::value::<bool>(bool::from_str(value)?),
+        ValueType::Datetime => *item = toml_edit::value::<Datetime>(Datetime::from_str(value)?),
     };
 
     Ok(document.to_string())

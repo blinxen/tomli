@@ -60,6 +60,7 @@ tomli query -f Cargo.toml bin[0]
 * int ([64-bit signed integer](https://doc.rust-lang.org/std/primitive.i64.html))
 * float ([64-bit floating point](https://doc.rust-lang.org/std/primitive.f64.html))
 * bool (Boolean)
+* datetime ([RFC3339](https://datatracker.ietf.org/doc/html/rfc3339))
 
 The value type can be specified with the `--type` argument.
 If not type is specified, then `str` is used.

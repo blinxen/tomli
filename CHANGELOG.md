@@ -1,5 +1,9 @@
 # Changelog for `tomli`
 
+## 3.2.0
+
+* Add datetime type to supported value types
+
 ## 0.3.1
 
 * Fix [issue](https://github.com/blinxen/tomli/issues/5)
