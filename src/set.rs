@@ -10,6 +10,7 @@ pub fn exec(
     query: &str,
     value: &str,
     value_type: ValueType,
+    dotted_key: bool,
 ) -> Result<String, TomliError> {
     // Editing the whole document makes no sense
     // If the user wants to do this, then he should use echo (or a similiar tool) to edit the file manually
@@ -61,6 +62,7 @@ pub fn exec(
                             Item::Value(Value::InlineTable(table))
                         } else {
                             let mut table = Table::new();
+                            table.set_dotted(dotted_key);
                             table.insert(key, toml_edit::value(""));
 
                             Item::Table(table)

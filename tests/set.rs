@@ -17,15 +17,19 @@ macro_rules! set_test {
             $expected
         );
     };
-    ($test_name:ident, $query:literal, $value:literal, $value_type:literal, $expected:literal) => {
+    // Explanation for [ $( $arguments:expr ),* ]
+    // [ .. ] --> expect these two literals
+    // $(),* --> expect a repeated number of something where it will be separated by command and
+    // will occur 0 or more times
+    // By adding $(,)? after the * we can also allow trailing comma
+    ($test_name:ident, $query:literal, $value:literal, [ $( $arguments:expr ),* ], $expected:literal) => {
         generic_test!(
             $test_name,
             vec![
                 "set",
                 "--filepath",
                 "tests/files/valid.toml",
-                "--type",
-                $value_type,
+                $( $arguments ),*,
                 $query,
                 $value
             ],
@@ -212,7 +216,7 @@ set_test!(
     should_set_value_in_array_and_convert_it_to_int,
     "table.array[1]",
     "5",
-    "int",
+    ["--type", "int"],
     r#"[table]
 key_with_decorator = "value"
 key_without_decorator ="value"
@@ -241,7 +245,7 @@ set_test!(
     should_set_value_in_array_and_convert_it_to_float,
     "table.array[1]",
     "5",
-    "float",
+    ["--type", "float"],
     r#"[table]
 key_with_decorator = "value"
 key_without_decorator ="value"
@@ -270,7 +274,7 @@ set_test!(
     should_set_value_in_array_and_convert_it_to_bool,
     "table.array[1]",
     "false",
-    "bool",
+    ["--type", "bool"],
     r#"[table]
 key_with_decorator = "value"
 key_without_decorator ="value"
@@ -299,13 +303,73 @@ set_test!(
     should_set_value_in_array_and_convert_it_to_datetime,
     "table.array[1]",
     "2025-12-12",
-    "datetime",
+    ["--type", "datetime"],
     r#"[table]
 key_with_decorator = "value"
 key_without_decorator ="value"
 number = 2
 inline_table = { inline_key = "inline_value", array_in_inline_table = [] }
 array = [1, 2025-12-12, 3, [4, 5, 6, { name = "inline_table_in_array", another_array = [8, 9]}]]
+
+[[table.array_of_tables]]
+key = "value"
+key2 = "value2"
+array = [1, 2, 3]
+
+[[table.array_of_tables]]
+key = "value"
+key2 = "value2"
+array = [1, 2, 3]
+
+[second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
+key = "value"
+
+"#
+);
+
+// Test if using dotted-key flag works as expected
+set_test!(
+    should_not_use_dotted_key_notation,
+    "table.name.first_name",
+    "tomli",
+    r#"[table]
+key_with_decorator = "value"
+key_without_decorator ="value"
+number = 2
+inline_table = { inline_key = "inline_value", array_in_inline_table = [] }
+array = [1, 2, 3, [4, 5, 6, { name = "inline_table_in_array", another_array = [8, 9]}]]
+
+[[table.array_of_tables]]
+key = "value"
+key2 = "value2"
+array = [1, 2, 3]
+
+[[table.array_of_tables]]
+key = "value"
+key2 = "value2"
+array = [1, 2, 3]
+
+[table.name]
+first_name = "tomli"
+
+[second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
+key = "value"
+
+"#
+);
+
+set_test!(
+    should_use_dotted_key_notation,
+    "table.name.first_name",
+    "tomli",
+    ["--dotted-key"],
+    r#"[table]
+key_with_decorator = "value"
+key_without_decorator ="value"
+number = 2
+inline_table = { inline_key = "inline_value", array_in_inline_table = [] }
+array = [1, 2, 3, [4, 5, 6, { name = "inline_table_in_array", another_array = [8, 9]}]]
+name.first_name = "tomli"
 
 [[table.array_of_tables]]
 key = "value"
@@ -360,7 +424,7 @@ set_test!(
     should_fail_to_convert_value_to_integer,
     "table.array[1]",
     "fff",
-    "int",
+    ["--type", "int"],
     "Could not convert the given value to an integer (i64)\n"
 );
 
@@ -369,7 +433,7 @@ set_test!(
     should_fail_to_convert_value_to_float,
     "table.array[1]",
     "fff",
-    "float",
+    ["--type", "float"],
     "Could not convert the given value to a float (f64)\n"
 );
 
@@ -378,7 +442,7 @@ set_test!(
     should_fail_to_convert_value_to_boolean,
     "table.array[1]",
     "fff",
-    "bool",
+    ["--type", "bool"],
     "Could not convert the given value to a boolean\n"
 );
 
@@ -387,6 +451,6 @@ set_test!(
     should_fail_to_convert_value_to_datetime,
     "table.array[1]",
     "fff",
-    "datetime",
+    ["--type", "datetime"],
     "Could not convert the given value to a datetime\n"
 );

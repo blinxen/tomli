@@ -1,8 +1,11 @@
 # Changelog for `tomli`
 
-## 3.2.0
+## 3.2.0 (UPCOMING)
 
 * Add datetime type to supported value types
+* Add `--dotted-key` flag to the `set` command so users can decide themselfs
+  if they want to set the value in a subtable or a dotted key.
+  See the help message for more information on how this looks.
 
 ## 0.3.1
 

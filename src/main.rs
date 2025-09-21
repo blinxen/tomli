@@ -43,6 +43,21 @@ enum Commands {
         /// Value type that should be used
         #[arg(value_enum, short = 't', long = "type", default_value_t = ValueType::Str)]
         value_type: ValueType,
+        /// Use dotted keys instead of creating a subtable
+        ///
+        /// By default, tomli expands dotted keys into a subtable.
+        ///
+        /// For example:
+        ///
+        /// [dependencies.windows]
+        /// workspace = true
+        ///
+        /// With this flag, tomli will use dotted key notation instead:
+        ///
+        /// [dependencies]
+        /// windows.workspace = true
+        #[arg(verbatim_doc_comment, long, default_value_t = false)]
+        dotted_key: bool,
     },
     /// Delete an item in a TOML document
     Delete {
@@ -88,9 +103,10 @@ fn main() {
             query,
             value,
             value_type,
+            dotted_key,
         } => (
             query.clone(),
-            set::exec(&mut document, &query, &value, value_type),
+            set::exec(&mut document, &query, &value, value_type, dotted_key),
             true,
         ),
         Commands::Delete { if_exists, query } => {
