@@ -387,6 +387,119 @@ key = "value"
 "#
 );
 
+set_test!(
+    should_create_array_with_type_str,
+    "table.new_array[0]",
+    "5",
+    r#"[table]
+key_with_decorator = "value"
+key_without_decorator ="value"
+number = 2
+inline_table = { inline_key = "inline_value", array_in_inline_table = [] }
+array = [1, 2, 3, [4, 5, 6, { name = "inline_table_in_array", another_array = [8, 9]}]]
+new_array = ["5"]
+
+[[table.array_of_tables]]
+key = "value"
+key2 = "value2"
+array = [1, 2, 3]
+
+[[table.array_of_tables]]
+key = "value"
+key2 = "value2"
+array = [1, 2, 3]
+
+[second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
+key = "value"
+
+"#
+);
+
+set_test!(
+    should_create_array_with_value_of_type_int,
+    "table.new_array[0]",
+    "5",
+    ["--type", "int"],
+    r#"[table]
+key_with_decorator = "value"
+key_without_decorator ="value"
+number = 2
+inline_table = { inline_key = "inline_value", array_in_inline_table = [] }
+array = [1, 2, 3, [4, 5, 6, { name = "inline_table_in_array", another_array = [8, 9]}]]
+new_array = [5]
+
+[[table.array_of_tables]]
+key = "value"
+key2 = "value2"
+array = [1, 2, 3]
+
+[[table.array_of_tables]]
+key = "value"
+key2 = "value2"
+array = [1, 2, 3]
+
+[second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
+key = "value"
+
+"#
+);
+
+set_test!(
+    should_create_array_with_inline_table,
+    "table.new_array[0].age",
+    "5",
+    r#"[table]
+key_with_decorator = "value"
+key_without_decorator ="value"
+number = 2
+inline_table = { inline_key = "inline_value", array_in_inline_table = [] }
+array = [1, 2, 3, [4, 5, 6, { name = "inline_table_in_array", another_array = [8, 9]}]]
+new_array = [{ age = "5" }]
+
+[[table.array_of_tables]]
+key = "value"
+key2 = "value2"
+array = [1, 2, 3]
+
+[[table.array_of_tables]]
+key = "value"
+key2 = "value2"
+array = [1, 2, 3]
+
+[second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
+key = "value"
+
+"#
+);
+
+set_test!(
+    should_create_array_even_if_index_out_of_bounds,
+    "table.new_array[5].age",
+    "5",
+    r#"[table]
+key_with_decorator = "value"
+key_without_decorator ="value"
+number = 2
+inline_table = { inline_key = "inline_value", array_in_inline_table = [] }
+array = [1, 2, 3, [4, 5, 6, { name = "inline_table_in_array", another_array = [8, 9]}]]
+new_array = [{ age = "5" }]
+
+[[table.array_of_tables]]
+key = "value"
+key2 = "value2"
+array = [1, 2, 3]
+
+[[table.array_of_tables]]
+key = "value"
+key2 = "value2"
+array = [1, 2, 3]
+
+[second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
+key = "value"
+
+"#
+);
+
 /*
 * Tests that should always fail
 */

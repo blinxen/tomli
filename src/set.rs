@@ -1,6 +1,6 @@
 use std::str;
 use std::str::FromStr;
-use toml_edit::{Datetime, DocumentMut, InlineTable, Item, Table, Value};
+use toml_edit::{Array, Datetime, DocumentMut, InlineTable, Item, Table, Value};
 
 use crate::errors::TomliError;
 use crate::{ValueType, parser};
@@ -86,9 +86,14 @@ pub fn exec(
                         item.get_mut(index)
                             .expect("BUG: Expected item at index but could not find it")
                     }
-                    // We only accept arrays here
-                    // All other types are an invalid access
-                    _ => return Err(TomliError::InvalidKeyAccess(index.to_string())),
+                    _ => {
+                        let mut array = Array::new();
+                        array.push("");
+                        *item = Item::Value(Value::Array(array));
+                        inline_table = true;
+                        item.get_mut(0)
+                            .expect("BUG: Expected item at index but could not find it")
+                    }
                 };
             }
         };

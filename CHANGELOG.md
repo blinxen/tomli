@@ -6,6 +6,7 @@
 * Add `--dotted-key` flag to the `set` command so users can decide themselfs
   if they want to set the value in a subtable or a dotted key.
   See the help message for more information on how this looks.
+* Allow the creation of arrays with the `set` command instead of showing an error
 
 ## 0.3.1
 
