@@ -1,6 +1,6 @@
 # Changelog for `tomli`
 
-## 3.2.0 (UPCOMING)
+## 0.4.0 (UPCOMING)
 
 * Add datetime type to supported value types
 * Add `--dotted-key` flag to the `set` command so users can decide themselfs
