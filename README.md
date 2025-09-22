@@ -85,6 +85,24 @@ Add a new table called `website` to the first element of the `bin` array:
 tomli set -f Cargo.toml bin[0].website.url https://example.com
 ```
 
+Add a new array called `websites` to the table `package`:
+
+```
+tomli set -f Cargo.toml package.websites[0] https://example.com
+```
+
+Add a new array called `numbers` to the table `package` and specify the type:
+
+```
+tomli set -f Cargo.toml --type int package.numbers[0] 5
+```
+
+Use dotted key notation instead of creating a subtable:
+
+```
+tomli set -f Cargo.toml --dotted-key --type bool package.version.workspace true
+```
+
 Delete `name` in the table `package`:
 
 ```
