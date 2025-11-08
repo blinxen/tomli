@@ -26,6 +26,11 @@ struct Cli {
     /// Edit file in-place when applicable
     #[arg(short = 'i', long, global = true)]
     in_place: bool,
+    /// Do not add trailing newline
+    ///
+    /// This is only relevant if --in-place is not set
+    #[arg(short = 'n', long, global = true)]
+    strip_trailing_newline: bool,
     #[command(subcommand)]
     command: Commands,
 }

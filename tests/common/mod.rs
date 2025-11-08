@@ -3,6 +3,7 @@ macro_rules! generic_test {
         #[test]
         fn $test_name() {
             let result = Command::new(env!("CARGO_BIN_EXE_tomli"))
+                .arg("-n")
                 .args($args)
                 .output();
 

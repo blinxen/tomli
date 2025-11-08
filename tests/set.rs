@@ -67,7 +67,6 @@ array = [1, 2, 3]
 
 [second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
 key = "value"
-
 "#
 );
 
@@ -95,7 +94,6 @@ array = [1, 2, 3]
 
 [second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
 key = "value"
-
 "#
 );
 
@@ -123,7 +121,6 @@ array = [1, 2, 3]
 
 [second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
 key = "value"
-
 "#
 );
 
@@ -151,7 +148,6 @@ array = [1, 2, 3]
 
 [second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
 key = "value"
-
 "#
 );
 
@@ -179,7 +175,6 @@ array = [1, 2, 3]
 
 [second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
 key = "value"
-
 "#
 );
 
@@ -207,7 +202,6 @@ array = [1, 2, 3]
 
 [second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
 key = "value"
-
 "#
 );
 
@@ -236,7 +230,6 @@ array = [1, 2, 3]
 
 [second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
 key = "value"
-
 "#
 );
 
@@ -265,7 +258,6 @@ array = [1, 2, 3]
 
 [second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
 key = "value"
-
 "#
 );
 
@@ -294,7 +286,6 @@ array = [1, 2, 3]
 
 [second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
 key = "value"
-
 "#
 );
 
@@ -323,7 +314,6 @@ array = [1, 2, 3]
 
 [second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
 key = "value"
-
 "#
 );
 
@@ -354,7 +344,6 @@ first_name = "tomli"
 
 [second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
 key = "value"
-
 "#
 );
 
@@ -383,7 +372,6 @@ array = [1, 2, 3]
 
 [second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
 key = "value"
-
 "#
 );
 
@@ -411,7 +399,6 @@ array = [1, 2, 3]
 
 [second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
 key = "value"
-
 "#
 );
 
@@ -440,7 +427,6 @@ array = [1, 2, 3]
 
 [second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
 key = "value"
-
 "#
 );
 
@@ -468,7 +454,6 @@ array = [1, 2, 3]
 
 [second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
 key = "value"
-
 "#
 );
 
@@ -496,7 +481,6 @@ array = [1, 2, 3]
 
 [second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
 key = "value"
-
 "#
 );
 

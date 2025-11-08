@@ -40,7 +40,6 @@ array = [1, 2, 3]
 
 [second_table.'brackets(more_brackets(quotes = "a", more_quotes = "b"))']
 key = "value"
-
 "#
 );
 
@@ -49,46 +48,46 @@ key = "value"
 query_test!(
     should_print_value_with_whitespace_prefix,
     "table.key_with_decorator",
-    " \"value\"\n"
+    " \"value\""
 );
 query_test!(
     should_print_value_without_whitespace_prefix,
     "table.key_without_decorator",
-    "\"value\"\n"
+    "\"value\""
 );
 // Test if numbers are returned correctly
-query_test!(should_print_value_as_number, "table.number", " 2\n");
+query_test!(should_print_value_as_number, "table.number", " 2");
 // Test if inline tables are returned correctly
 query_test!(
     should_print_inline_table,
     "table.inline_table",
-    " { inline_key = \"inline_value\", array_in_inline_table = [] }\n"
+    " { inline_key = \"inline_value\", array_in_inline_table = [] }"
 );
 // Test if array of tables are returned correctly
 query_test!(
     should_print_array_of_tables,
     "table.array_of_tables",
-    "[{ key = \"value\", key2 = \"value2\", array = [1, 2, 3] }, { key = \"value\", key2 = \"value2\", array = [1, 2, 3] }]\n"
+    "[{ key = \"value\", key2 = \"value2\", array = [1, 2, 3] }, { key = \"value\", key2 = \"value2\", array = [1, 2, 3] }]"
 );
 // Test if arrays are returned correctly
 query_test!(
     should_print_array,
     "table.array",
-    " [1, 2, 3, [4, 5, 6, { name = \"inline_table_in_array\", another_array = [8, 9]}]]\n"
+    " [1, 2, 3, [4, 5, 6, { name = \"inline_table_in_array\", another_array = [8, 9]}]]"
 );
 // Test if we can get the first item in an array
-query_test!(should_print_element_in_array, "table.array[1]", " 2\n");
+query_test!(should_print_element_in_array, "table.array[1]", " 2");
 // Test if we can get a key in a table stored in an array of tables
 query_test!(
     should_print_value_from_table_in_array_of_tables,
     "table.array_of_tables[0].key",
-    " \"value\"\n"
+    " \"value\""
 );
 // Test if quotes and brackets can be used as a table header
 query_test!(
     should_print_table_with_weird_name,
     "second_table.'brackets(more_brackets(quotes = \"a\", more_quotes = \"b\"))'.key",
-    " \"value\"\n"
+    " \"value\""
 );
 
 /*

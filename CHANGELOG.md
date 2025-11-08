@@ -3,6 +3,8 @@
 ## 0.5.0 (UPCOMMING)
 
 * Introduce copy command for copying whole items from one file into another
+* Add `--strip-trailing-newline` global flag to opt-out of trailing newline
+  when printing to stdout
 
 ## 0.4.0
 

@@ -17,7 +17,7 @@ macro_rules! input_test {
 }
 
 // Empty TOML documents are valid
-input_test!(should_print_an_empty_document, "empty.toml", "\n");
+input_test!(should_print_an_empty_document, "empty.toml", "");
 // Test whether invalid TOML files are accepted
 input_test!(
     should_print_error_message_on_invalid_toml,
