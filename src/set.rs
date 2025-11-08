@@ -5,29 +5,17 @@ use toml_edit::{Array, Datetime, DocumentMut, InlineTable, Item, Table, Value};
 use crate::errors::TomliError;
 use crate::{ValueType, parser};
 
-pub fn exec(
-    document: &mut DocumentMut,
-    query: &str,
-    value: &str,
-    value_type: ValueType,
+pub(crate) fn parse_toml_path(
+    path: Vec<parser::Item>,
+    root: &mut Item,
     dotted_key: bool,
-) -> Result<String, TomliError> {
-    // Editing the whole document makes no sense
-    // If the user wants to do this, then he should use echo (or a similiar tool) to edit the file manually
-    if query == "." || query.is_empty() {
-        return Err(TomliError::InvalidInputQuery(
-            "set",
-            "Editing the document as a whole is currently not supported",
-        ));
-    }
-
-    let mut item = document.as_item_mut();
-    let toml_path = parser::evaluate(query)?;
+) -> Result<&mut Item, TomliError> {
+    let mut item = root;
     // When parsing the toml path we want to keep track of whether we are currently in a inlined
     // table or not. Depending on this, we either crate a new table or a new inlined table.
     let mut inline_table = false;
 
-    for segment in toml_path.iter() {
+    for segment in path.iter() {
         match segment {
             parser::Item::Key(key) => {
                 item = match item {
@@ -98,6 +86,27 @@ pub fn exec(
             }
         };
     }
+
+    Ok(item)
+}
+
+pub fn exec(
+    document: &mut DocumentMut,
+    query: &str,
+    value: &str,
+    value_type: ValueType,
+    dotted_key: bool,
+) -> Result<String, TomliError> {
+    // Editing the whole document makes no sense
+    // If the user wants to do this, then he should use echo (or a similiar tool) to edit the file manually
+    if query == "." || query.is_empty() {
+        return Err(TomliError::InvalidInputQuery(
+            "set",
+            "Editing the document as a whole is currently not supported",
+        ));
+    }
+
+    let item = parse_toml_path(parser::evaluate(query)?, document.as_item_mut(), dotted_key)?;
 
     if item.is_table() || item.is_array() || item.is_array_of_tables() {
         return Err(TomliError::InvalidInputQuery(

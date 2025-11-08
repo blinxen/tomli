@@ -1,6 +1,10 @@
 # Changelog for `tomli`
 
-## 0.4.0 (UPCOMING)
+## 0.5.0 (UPCOMMING)
+
+* Introduce copy command for copying whole items from one file into another
+
+## 0.4.0
 
 * Add datetime type to supported value types
 * Add `--dotted-key` flag to the `set` command so users can decide themselfs

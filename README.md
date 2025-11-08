@@ -115,6 +115,21 @@ Delete the first element in the array authors:
 tomli delete -f Cargo.toml package.authors[0]
 ```
 
+### Copying TOML items from one file to another
+
+`tomli` supports copying a item (key/value pair, Table, Array etc.) from one file
+to another.
+If the destination file does not exit then `tomli` will try to create it if `--in-place` is set.
+At the moment, everything is simply copied over and overwritten.
+
+**Examples**:
+
+Copy table `package` into another file name `another.toml`:
+
+```
+tomli copy -f Cargo.toml package another.toml new_package
+```
+
 License
 -------
 

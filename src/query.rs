@@ -1,19 +1,12 @@
 use std::str;
-use toml_edit::DocumentMut;
+use toml_edit::{DocumentMut, Item};
 
 use crate::errors::TomliError;
 use crate::parser;
 
-pub fn exec(document: &DocumentMut, query: &str) -> Result<String, TomliError> {
-    // An empty query or a dot are evaluated as the whole document
-    if query == "." || query.is_empty() {
-        return Ok(document.to_string());
-    }
-
-    let mut item = document.as_item();
-    let toml_path = parser::evaluate(query)?;
-
-    for segment in toml_path.iter() {
+pub(crate) fn parse_toml_path(path: Vec<parser::Item>, root: &Item) -> Result<&Item, TomliError> {
+    let mut item = root;
+    for segment in path.iter() {
         match segment {
             parser::Item::Key(key) => {
                 item = if let Some(item) = item.get(key) {
@@ -36,5 +29,14 @@ pub fn exec(document: &DocumentMut, query: &str) -> Result<String, TomliError> {
         };
     }
 
-    Ok(item.to_string())
+    Ok(item)
+}
+
+pub fn exec(document: &DocumentMut, query: &str) -> Result<String, TomliError> {
+    // An empty query or a dot are evaluated as the whole document
+    if query == "." || query.is_empty() {
+        return Ok(document.to_string());
+    }
+
+    Ok(parse_toml_path(parser::evaluate(query)?, document.as_item())?.to_string())
 }
