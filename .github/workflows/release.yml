@@ -3,6 +3,10 @@ name: Build and release
 permissions:
   contents: write
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 on:
   push:
     tags:
@@ -10,12 +14,54 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0  # Disable incremental compilation for smaller release binaries
+  CARGO_NET_RETRY: 10   # Retry network requests for better reliability
+  PROJECT_NAME: tomli # Parameterize the project name
 
 jobs:
-  release:
-
-    runs-on: ubuntu-latest
-
+  build:
+    strategy:
+      matrix:
+        include:
+          # Linux AMD64 (musl)
+          - os: ubuntu-latest
+            rust_target: x86_64-unknown-linux-musl
+            os_name: linux
+            arch_name: amd64
+            file_ext: tar.gz
+          # Linux ARM64 (musl)
+          - os: ubuntu-latest
+            rust_target: aarch64-unknown-linux-musl
+            os_name: linux
+            arch_name: arm64
+            file_ext: tar.gz
+          # macOS AMD64
+          - os: macos-latest
+            rust_target: x86_64-apple-darwin
+            os_name: darwin
+            arch_name: amd64
+            file_ext: tar.gz
+          # macOS ARM64
+          - os: macos-14
+            rust_target: aarch64-apple-darwin
+            os_name: darwin
+            arch_name: arm64
+            file_ext: tar.gz
+          # Windows AMD64
+          - os: windows-latest
+            rust_target: x86_64-pc-windows-msvc
+            os_name: windows
+            arch_name: amd64
+            file_ext: zip
+          # Windows ARM64
+          - os: windows-latest
+            rust_target: aarch64-pc-windows-msvc
+            os_name: windows
+            arch_name: arm64
+            file_ext: zip
+    runs-on: ${{ matrix.os }}
+    env:
+      VERSION: ${{ github.ref_name }}
     steps:
       - uses: actions/checkout@v4
 
@@ -26,15 +72,289 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-${{ matrix.rust_target }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Build release
+      - name: Install Rust target and cross-compilation tools (Unix)
         run: |
-          cargo build --release
-          mv target/release/tomli .
-          tar -czf tomli.tar.gz tomli CHANGELOG.md LICENSE
+          rustup target add ${{ matrix.rust_target }}
+          if [ "${{ matrix.rust_target }}" = "x86_64-unknown-linux-musl" ]; then
+            sudo apt-get update
+            sudo apt-get install -y musl-tools
+          elif [ "${{ matrix.rust_target }}" = "aarch64-unknown-linux-musl" ]; then
+            sudo apt-get update
+            sudo apt-get install -y musl-tools gcc-aarch64-linux-gnu
+            mkdir -p .cargo
+            echo '[target.aarch64-unknown-linux-musl]' > .cargo/config.toml
+            echo 'linker = "aarch64-linux-gnu-gcc"' >> .cargo/config.toml
+          fi
+        if: ${{ matrix.os != 'windows-latest' }}
+
+      - name: Install Rust target (Windows)
+        run: rustup target add ${{ matrix.rust_target }}
+        if: ${{ matrix.os == 'windows-latest' }}
+
+      - name: Build binary
+        run: cargo build --verbose --release --target ${{ matrix.rust_target }}
+
+      - name: Prepare artifact
+        run: |
+          # Use VERSION directly (includes 'v' prefix if present in tag)
+          ARCHIVE_NAME="${{ env.PROJECT_NAME }}_${VERSION}_${{ matrix.os_name }}_${{ matrix.arch_name }}"
+          BINARY_EXECUTABLE_NAME="${{ env.PROJECT_NAME }}"
+
+          echo "ARCHIVE_NAME=${ARCHIVE_NAME}" >> $GITHUB_ENV
+
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            cp target/${{ matrix.rust_target }}/release/${{ env.PROJECT_NAME }}.exe ${BINARY_EXECUTABLE_NAME}.exe
+            7z a ${ARCHIVE_NAME}.zip ${BINARY_EXECUTABLE_NAME}.exe CHANGELOG.md LICENSE
+          elif [[ "${{ matrix.os }}" == macos-* ]]; then
+            cp target/${{ matrix.rust_target }}/release/${{ env.PROJECT_NAME }} ${BINARY_EXECUTABLE_NAME}
+            tar -czf ${ARCHIVE_NAME}.tar.gz ${BINARY_EXECUTABLE_NAME} CHANGELOG.md LICENSE
+          else # Linux
+            cp target/${{ matrix.rust_target }}/release/${{ env.PROJECT_NAME }} ${BINARY_EXECUTABLE_NAME}
+            tar -czf ${ARCHIVE_NAME}.tar.gz ${BINARY_EXECUTABLE_NAME} CHANGELOG.md LICENSE
+          fi
+        shell: bash
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PROJECT_NAME }}-${{ matrix.os }}-${{ matrix.arch_name }}
+          path: ${{ env.ARCHIVE_NAME }}.*
+
+  create-universal-macos-binary:
+    needs: build
+    runs-on: macos-latest
+    env:
+      VERSION: ${{ github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Download individual macOS artifacts
+      - name: Download macOS AMD64 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.PROJECT_NAME }}-macos-latest-amd64
+          path: artifacts/macos-amd64
+
+      - name: Download macOS ARM64 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.PROJECT_NAME }}-macos-14-arm64
+          path: artifacts/macos-arm64
+
+      # Extract binaries and combine with lipo
+      - name: Create Universal macOS Binary
+        run: |
+          # Extract AMD64 binary from its archive
+          tar -xzf artifacts/macos-amd64/${{ env.PROJECT_NAME }}_${{ env.VERSION }}_darwin_amd64.tar.gz -C artifacts/macos-amd64
+          # Extract ARM64 binary from its archive
+          tar -xzf artifacts/macos-arm64/${{ env.PROJECT_NAME }}_${{ env.VERSION }}_darwin_arm64.tar.gz -C artifacts/macos-arm64
+
+          UNIVERSAL_ARCHIVE_NAME="${{ env.PROJECT_NAME }}_${{ env.VERSION }}_darwin_universal"
+          BINARY_EXECUTABLE_NAME="${{ env.PROJECT_NAME }}"
+
+          echo "UNIVERSAL_ARCHIVE_NAME=${UNIVERSAL_ARCHIVE_NAME}" >> $GITHUB_ENV
+
+          # Combine with lipo
+          lipo -create \
+            artifacts/macos-amd64/${BINARY_EXECUTABLE_NAME} \
+            artifacts/macos-arm64/${BINARY_EXECUTABLE_NAME} \
+            -output ${BINARY_EXECUTABLE_NAME}
+
+          # Create universal archive
+          tar -czf ${UNIVERSAL_ARCHIVE_NAME}.tar.gz \
+            ${BINARY_EXECUTABLE_NAME} CHANGELOG.md LICENSE
+
+
+        shell: bash
+
+      - name: Upload Universal macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PROJECT_NAME }}-darwin-universal
+          path: ${{ env.UNIVERSAL_ARCHIVE_NAME }}.tar.gz
+
+  test-binaries:
+    needs: [build, create-universal-macos-binary]
+    strategy:
+      matrix:
+        include:
+          # Linux AMD64 (musl)
+          - os: ubuntu-latest
+            artifact_name_suffix: ubuntu-latest-amd64
+            os_name: linux
+            arch_name: amd64
+            file_ext: tar.gz
+          # Linux ARM64 (musl)
+          - os: ubuntu-latest
+            artifact_name_suffix: ubuntu-latest-arm64
+            os_name: linux
+            arch_name: arm64
+            file_ext: tar.gz
+          # macOS AMD64
+          - os: macos-latest
+            artifact_name_suffix: macos-latest-amd64
+            os_name: darwin
+            arch_name: amd64
+            file_ext: tar.gz
+          # macOS ARM64
+          - os: macos-14
+            artifact_name_suffix: macos-14-arm64
+            os_name: darwin
+            arch_name: arm64
+            file_ext: tar.gz
+          # macOS Universal
+          - os: macos-latest
+            artifact_name_suffix: darwin-universal
+            os_name: darwin
+            arch_name: universal
+            file_ext: tar.gz
+          # Windows AMD64
+          - os: windows-latest
+            artifact_name_suffix: windows-latest-amd64
+            os_name: windows
+            arch_name: amd64
+            file_ext: zip
+          # Windows ARM64
+          - os: windows-latest
+            artifact_name_suffix: windows-latest-arm64
+            os_name: windows
+            arch_name: arm64
+            file_ext: zip
+    runs-on: ${{ matrix.os }}
+    env:
+      VERSION: ${{ github.ref_name }}
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.PROJECT_NAME }}-${{ matrix.artifact_name_suffix }}
+          path: artifacts
+
+      - name: Install QEMU for ARM64 testing
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.arch_name == 'arm64' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static binfmt-support
+        shell: bash
+
+      - name: Extract and test binary
+        run: |
+          cd artifacts
+          ARTIFACT_ARCHIVE_NAME="${{ env.PROJECT_NAME }}_${{ env.VERSION }}_${{ matrix.os_name }}_${{ matrix.arch_name }}.${{ matrix.file_ext }}"
+          EXTRACT_DIR="${{ env.PROJECT_NAME }}_${{ env.VERSION }}_${{ matrix.os_name }}_${{ matrix.arch_name }}"
+          BINARY_EXECUTABLE_NAME="${{ env.PROJECT_NAME }}"
+          
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            7z x -aoa "${ARTIFACT_ARCHIVE_NAME}" -o"${EXTRACT_DIR}" # Extract to a new directory
+            cd "${EXTRACT_DIR}"
+            
+            # Skip testing Windows ARM64 binaries on x86_64 runners (cross-compiled binaries can't run natively)
+            if [ "${{ matrix.arch_name }}" = "arm64" ]; then
+              echo "Skipping Windows ARM64 binary test on x86_64 runner (cross-compiled binary)"
+              echo "Windows ARM64 binary extracted successfully"
+            else
+              echo "=== Version output ==="
+              ./${BINARY_EXECUTABLE_NAME}.exe --version
+              echo ""
+              echo "=== Help output ==="
+              ./${BINARY_EXECUTABLE_NAME}.exe --help
+              echo ""
+              echo "=== Query functionality test ==="
+              echo 'name = "test-name"' > test.toml
+              RESULT=$(./${BINARY_EXECUTABLE_NAME}.exe query -f test.toml name)
+              EXPECTED=' "test-name"'
+              if [ "$RESULT" = "$EXPECTED" ]; then
+                echo "✓ Query test passed: $RESULT"
+              else
+                echo "✗ Query test failed: expected '$EXPECTED', got '$RESULT'"
+                exit 1
+              fi
+              
+              echo "=== Set functionality test ==="
+              ./${BINARY_EXECUTABLE_NAME}.exe set -i -f test.toml name "modified-name"
+              RESULT=$(./${BINARY_EXECUTABLE_NAME}.exe query -f test.toml name)
+              EXPECTED=' "modified-name"'
+              if [ "$RESULT" = "$EXPECTED" ]; then
+                echo "✓ Set test passed: $RESULT"
+              else
+                echo "✗ Set test failed: expected '$EXPECTED', got '$RESULT'"
+                exit 1
+              fi
+              rm test.toml
+            fi
+          else
+            mkdir -p "${EXTRACT_DIR}" # Create directory for tar extraction
+            tar -xzf "${ARTIFACT_ARCHIVE_NAME}" -C "${EXTRACT_DIR}"
+            cd "${EXTRACT_DIR}"
+            
+            # For ARM64 Linux binaries on x86_64 runners, QEMU emulation is already set up
+            if [ "${{ matrix.os_name }}" = "linux" ] && [ "${{ matrix.arch_name }}" = "arm64" ]; then
+              echo "Testing ARM64 Linux binary using QEMU emulation"
+            fi
+            
+            echo "=== Version output ==="
+            ./${BINARY_EXECUTABLE_NAME} --version
+            echo ""
+            echo "=== Help output ==="
+            ./${BINARY_EXECUTABLE_NAME} --help
+            echo ""
+            echo "=== Query functionality test ==="
+            echo 'name = "test-name"' > test.toml
+            RESULT=$(./${BINARY_EXECUTABLE_NAME} query -f test.toml name)
+            EXPECTED=' "test-name"'
+            if [ "$RESULT" = "$EXPECTED" ]; then
+              echo "✓ Query test passed: $RESULT"
+            else
+              echo "✗ Query test failed: expected '$EXPECTED', got '$RESULT'"
+              exit 1
+            fi
+            
+            echo "=== Set functionality test ==="
+            ./${BINARY_EXECUTABLE_NAME} set -i -f test.toml name "modified-name"
+            RESULT=$(./${BINARY_EXECUTABLE_NAME} query -f test.toml name)
+            EXPECTED=' "modified-name"'
+            if [ "$RESULT" = "$EXPECTED" ]; then
+              echo "✓ Set test passed: $RESULT"
+            else
+              echo "✗ Set test failed: expected '$EXPECTED', got '$RESULT'"
+              exit 1
+            fi
+            rm test.toml
+          fi
+        shell: bash
+
+  release:
+    needs: [build, create-universal-macos-binary, test-binaries]
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ github.ref_name }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create unified checksums file
+        run: |
+          echo "# SHA256 Checksums for ${{ env.PROJECT_NAME }} ${{ env.VERSION }}" > SHA256SUMS
+          echo "# Verify with: sha256sum -c SHA256SUMS" >> SHA256SUMS
+          echo "" >> SHA256SUMS
+          
+          # Generate checksums for all release files
+          find artifacts -name "${{ env.PROJECT_NAME }}_${{ env.VERSION }}_*.tar.gz" -o -name "${{ env.PROJECT_NAME }}_${{ env.VERSION }}_*.zip" | sort | while read file; do
+            filename=$(basename "$file")
+            checksum=$(sha256sum "$file" | cut -d' ' -f1)
+            echo "$checksum  $filename" >> SHA256SUMS
+          done
+          
+          echo "Generated SHA256SUMS:"
+          cat SHA256SUMS
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
-          files: tomli.tar.gz
+          files: |
+            artifacts/*/${{ env.PROJECT_NAME }}_${{ env.VERSION }}_*.tar.gz
+            artifacts/*/${{ env.PROJECT_NAME }}_${{ env.VERSION }}_*.zip
+            SHA256SUMS
