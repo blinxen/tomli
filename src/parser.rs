@@ -19,7 +19,8 @@ enum Token {
 }
 
 fn tokenize(chars: Chars) -> Vec<Token> {
-    let mut tokens = Vec::new();
+    let (lo, _) = chars.size_hint();
+    let mut tokens = Vec::with_capacity(lo);
 
     for character in chars {
         tokens.push(match character {
