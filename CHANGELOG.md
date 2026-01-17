@@ -1,6 +1,6 @@
 # Changelog for `tomli`
 
-## 0.5.0 (UPCOMMING)
+## 0.5.0
 
 * Introduce copy command for copying whole items from one file into another
 * Add `--strip-trailing-newline` global flag to opt-out of trailing newline
