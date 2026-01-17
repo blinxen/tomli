@@ -19,15 +19,30 @@ macro_rules! input_test {
 // Empty TOML documents are valid
 input_test!(should_print_an_empty_document, "empty.toml", "");
 // Test whether invalid TOML files are accepted
+#[cfg(target_family = "unix")]
 input_test!(
     should_print_error_message_on_invalid_toml,
     "invalid.toml",
     "The provided TOML document has an invalid syntax:\n\nTOML parse error at line 2, column 5\n  |\n2 | name\n  |     ^\nkey with no value, expected `=`\n\n"
 );
+#[cfg(target_family = "windows")]
+input_test!(
+    should_print_error_message_on_invalid_toml,
+    "invalid.toml",
+    "The provided TOML document has an invalid syntax:\n\nTOML parse error at line 2, column 5\n  |\n2 | name\r\n  |     ^\nkey with no value, expected `=`\n\n"
+);
+
+#[cfg(target_family = "unix")]
 input_test!(
     should_print_error_message_on_json_file,
     "json.toml",
     "The provided TOML document has an invalid syntax:\n\nTOML parse error at line 1, column 1\n  |\n1 | {\n  | ^\ninvalid key-value pair, expected key\n\n"
+);
+#[cfg(target_family = "windows")]
+input_test!(
+    should_print_error_message_on_json_file,
+    "json.toml",
+    "The provided TOML document has an invalid syntax:\n\nTOML parse error at line 1, column 1\n  |\n1 | {\r\n  | ^\ninvalid key-value pair, expected key\n\n"
 );
 
 #[test]
