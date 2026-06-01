@@ -33,10 +33,10 @@ jobs:
     env:
       VERSION: ${{ github.ref_name }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8
         with:
           targets: ${{ matrix.target }}
 
@@ -82,7 +82,7 @@ jobs:
           echo "ARCHIVE_PATH=$ARCHIVE_NAME" >> $env:GITHUB_ENV
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: ${{ matrix.target }}-archive
           path: ${{ env.ARCHIVE_PATH }}
@@ -92,10 +92,10 @@ jobs:
     needs: [build-and-test]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@ad191675b41f6a5b46da9a048cb6893812da158b
         with:
           path: artifacts
 
@@ -113,7 +113,7 @@ jobs:
           cat SHA256SUMS
 
       - name: Create release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda
         with:
           draft: false
           prerelease: false
